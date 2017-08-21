@@ -3,8 +3,8 @@
  * XML to JSON
  *
  * @author Ethan Jinks O'Sullivan
- * @link https://www.factmaven.com/api/json
- * @version 1.1.0
+ * @link https://api.ethanosullivan.com/json
+ * @version 1.0.0
  */
 
 // Lets the browser and tools such as Postman know it's JSON
@@ -22,7 +22,7 @@ if ( isset( $_GET['url'] ) ) {
             "detail" => "Please set the path to your XML by using the '?url=' query string.",
         ],
         "meta" => [
-        "version" => "1.1.0",
+        "version" => "1.0.0",
         "copyright" => "Copyright 2011-" . date("Y") . " Fact Maven Corp.",
         "link" => "https://www.factmaven.com/",
         "authors" => [

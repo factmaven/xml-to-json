@@ -12,4 +12,5 @@ Convert dynamic XML feeds to JSON by entering the URL in a parameter.
 http://example.com?xml=http://example.com/feed.xml
 ```
 
+---
 **Source: [Convert XML to JSON in PHP](https://www.outlandish.com/blog/xml-to-json/)**
