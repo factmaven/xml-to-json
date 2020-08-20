@@ -2,8 +2,8 @@
 /**
  * XML to JSON
  *
- * @author Ethan Jinks O'Sullivan
- * @link https://api.ethanosullivan.com/json
+ * @author Ethan O'Sullivan
+ * @link https://api.factmaven.com/xml-to-json
  * @version 1.0.0
  */
 
@@ -24,9 +24,9 @@ if ( isset( $_GET['url'] ) ) {
         "meta" => [
         "version" => "1.0.0",
         "copyright" => "Copyright 2011-" . date("Y") . " Fact Maven Corp.",
-        "link" => "https://www.factmaven.com/",
+        "link" => "https://factmaven.com/",
         "authors" => [
-                "Ethan Jinks O'Sullivan",
+                "Ethan O'Sullivan",
             ],
         ],
     ];
@@ -34,18 +34,18 @@ if ( isset( $_GET['url'] ) ) {
 
 function xmlToArray( $xml, $options = array() ) {
     $defaults = array( 
-        'namespaceSeparator' => ':', // you may want this to be something other than a colon
-        'attributePrefix' => '@', // to distinguish between attributes and nodes with the same name
-        'alwaysArray' => array(), // array of XML tag names which should always become arrays
-        'autoArray' => TRUE, // only create arrays for tags which appear more than once
-        'textContent' => '#text', // key used for the text content of elements
-        'autoText' => TRUE, // skip textContent key if node has no attributes or child nodes
-        'keySearch' => FALSE, // optional search and replace on tag and attribute names
-        'keyReplace' => FALSE, // replace values for above search values ( as passed to str_replace() )
+        'namespaceSeparator' => ':', // Can be something other than a colon
+        'attributePrefix' => '@', // Distinguish between attributes and nodes with the same name
+        'alwaysArray' => array(), // Array of XML tag names which should always become arrays
+        'autoArray' => TRUE, // Only create arrays for tags which appear more than once
+        'textContent' => '#text', // Key used for the text content of elements
+        'autoText' => TRUE, // Skip textContent key if node has no attributes or child nodes
+        'keySearch' => FALSE, // Optional search and replace on tag and attribute names
+        'keyReplace' => FALSE, // Replace values for above search values ( as passed to str_replace() )
     );
     $options = array_merge( $defaults, $options );
     $namespaces = $xml->getDocNamespaces();
-    $namespaces[''] = NULL; // add base ( empty ) namespace
+    $namespaces[''] = NULL; // Add base ( empty ) namespace
     // Get attributes from all namespaces
     $attributesArray = array();
     foreach ( $namespaces as $prefix => $namespace ) {
