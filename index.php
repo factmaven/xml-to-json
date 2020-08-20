@@ -64,7 +64,8 @@ function xmlToArray( $xml, $options = array() ) {
         foreach ( $xml->children( $namespace ) as $childXml ) {
             // Recurse into child nodes
             $childArray = xmlToArray( $childXml, $options );
-            list( $childTagName, $childProperties ) = each( $childArray );
+            $childTagName = key( $childArray );
+            $childProperties = current( $childArray );
             // Replace characters in tag name
             if ( $options['keySearch'] ) {
                 $childTagName = str_replace( $options['keySearch'], $options['keyReplace'], $childTagName );
