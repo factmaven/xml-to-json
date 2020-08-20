@@ -8,7 +8,7 @@
  */
 
 // Lets the browser and tools such as Postman know it's JSON
-// header( "Content-Type: application/json" );
+header( "Content-Type: application/json" );
 
 // Get XML source through the 'xml' parameter
 if ( isset( $_GET['url'] ) ) {
@@ -102,7 +102,7 @@ function xmlToArray( $xml, $options = array() ) {
     return array( $xml->getName() => $propertiesArray );
 }
 // Output JSON
-// echo json_encode( $json );
+echo json_encode( $json );
 
 // DEBUG: Array output
-print_r( $json );
+// print_r( $json );
