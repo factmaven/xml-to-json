@@ -1,16 +1,17 @@
-# XML to JSON
+# XML to JSON API
 ---
 
-Convert dynamic XML feeds to JSON by entering the URL in a parameter.
+Inspired by [Tamlyn's XML2JSON](https://github.com/tamlyn/xml2json) converter, this simple API converts dynamic XML feeds to JSON by entering the URL in a parameter (`xml`). This ensures that the most recent XML data is converted to a JSON.
 
-*Built 100% in PHP.*
-
-### Example
+## Example
 ---
+
+This API is current available for use by visiting:
+
+### https://api.factmaven.com/xml-to-json
+
+Then, adding your XML URL like so:
 
 ```
-http://example.com?xml=http://example.com/feed.xml
+https://api.factmaven.com/xml-to-json?xml=http://example.com/feed.xml
 ```
-
----
-**Source: [Convert XML to JSON in PHP](https://www.outlandish.com/blog/xml-to-json/)**
