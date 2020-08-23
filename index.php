@@ -11,15 +11,15 @@
 header("Content-Type: application/json");
 
 // Get XML source through the 'xml' parameter
-if (!empty($_GET['url']) && isset($_GET['url'])) {
-    $xml = simplexml_load_file($_GET['url']);
+if (!empty($_GET['xml']) && isset($_GET['xml'])) {
+    $xml = simplexml_load_file($_GET['xml']);
     $json = xmlToArray($xml);
 } else {
     $json = [
         "errors" => [
             "id" => "404",
             "title" => "Missing Parameter",
-            "detail" => "Please set the path to your XML by using the '?url=' query string.",
+            "detail" => "Please set the path to your XML by using the '?xml=' query string.",
         ],
         "meta" => [
         "version" => "1.1.0",
