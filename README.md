@@ -41,7 +41,7 @@ While there are plenty of [XML to JSON converters available](https://www.google
 
 That's where the **XML to JSON API** comes in, it converts dynamic XML feeds to JSON. As a result, it will be able to parse those attribute values in a JSON format:
 
-```
+```json
 "item": [
     {
         "@contentType": "tv_episode",
