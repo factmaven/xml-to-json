@@ -2,12 +2,12 @@
 /**
  * XML to JSON API
  *
- * @author Ethan O'Sullivan
  * @link https://api.factmaven.com/xml-to-json
+ * @author Ethan O'Sullivan <https://ethanosullivan.com>
  * @version 1.1.0
  */
 
-// Lets the browser and tools such as Postman know it's JSON
+// Lets the browser and API tools know it's JSON
 header("Content-Type: application/json");
 
 // Get XML source through the 'xml' parameter
@@ -34,29 +34,29 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
 
 function xmlToArray($xml, $options = array()) {
     $defaults = array(
-        'namespaceRecursive' => false,  //setting to true will get xml doc namespaces recursively
-        'removeNamespace' => false,     //set to true if you want to remove the namespace from resulting keys (recommend setting namespaceSeparator = '' when this is set to true)
-        'namespaceSeparator' => ':',    //you may want this to be something other than a colon
-        'attributePrefix' => '@',       //to distinguish between attributes and nodes with the same name
-        'alwaysArray' => array(),       //array of xml tag names which should always become arrays
-        'autoArray' => true,            //only create arrays for tags which appear more than once
-        'textContent' => '#text',           //key used for the text content of elements
-        'autoText' => true,             //skip textContent key if node has no attributes or child nodes
-        'keySearch' => false,           //optional search and replace on tag and attribute names
-        'keyReplace' => false           //replace values for above search values (as passed to str_replace())
+        'namespaceRecursive' => false,  // Get XML doc namespaces recursively
+        'removeNamespace' => false,     // Remove namespace from resulting keys (recommend setting namespaceSeparator = '' when true)
+        'namespaceSeparator' => ':',    // Change separator to something other than a colon
+        'attributePrefix' => '@',       // Distinguish between attributes and nodes with the same name
+        'alwaysArray' => array(),       // Array of XML tag names which should always become arrays
+        'autoArray' => true,            // Create arrays for tags which appear more than once
+        'textContent' => '#text',       // Key used for the text content of elements
+        'autoText' => true,             // Skip textContent key if node has no attributes or child nodes
+        'keySearch' => false,           // (Optional) search and replace on tag and attribute names
+        'keyReplace' => false           // (Optional) replace values for above search values
     );
     $options = array_merge($defaults, $options);
     $namespaces = $xml->getDocNamespaces($options['namespaceRecursive']);
-    $namespaces[''] = null; //add base (empty) namespace
+    $namespaces[''] = null; // Add empty base namespace
  
-    //get attributes from all namespaces
+    // Get attributes from all namespaces
     $attributesArray = array();
     foreach ($namespaces as $prefix => $namespace) {
         if ($options['removeNamespace']) {
             $prefix = '';
         }
         foreach ($xml->attributes($namespace) as $attributeName => $attribute) {
-            //replace characters in attribute name
+            // (Optional) replace characters in attribute name
             if ($options['keySearch']) {
                 $attributeName =
                     str_replace($options['keySearch'], $options['keyReplace'], $attributeName);
@@ -68,7 +68,7 @@ function xmlToArray($xml, $options = array()) {
         }
     }
  
-    //get child nodes from all namespaces
+    // Get child nodes from all namespaces
     $tagsArray = array();
     foreach ($namespaces as $prefix => $namespace) {
         if ($options['removeNamespace']) {
@@ -76,25 +76,25 @@ function xmlToArray($xml, $options = array()) {
         }
 
         foreach ($xml->children($namespace) as $childXml) {
-            //recurse into child nodes
+            // Recurse into child nodes
             $childArray = xmlToArray($childXml, $options);
             $childTagName = key($childArray);
             $childProperties = current($childArray);
  
-            //replace characters in tag name
+            // Replace characters in tag name
             if ($options['keySearch']) {
                 $childTagName =
                     str_replace($options['keySearch'], $options['keyReplace'], $childTagName);
             }
 
-            //add namespace prefix, if any
+            // Add namespace prefix, if any
             if ($prefix) {
                 $childTagName = $prefix . $options['namespaceSeparator'] . $childTagName;
             }
  
             if (!isset($tagsArray[$childTagName])) {
-                //only entry with this key
-                //test if tags of this type should always be arrays, no matter the element count
+                // Only entry with this key
+                // Test if tags of this type should always be arrays, no matter the element count
                 $tagsArray[$childTagName] =
                         in_array($childTagName, $options['alwaysArray'], true) || !$options['autoArray']
                         ? array($childProperties) : $childProperties;
@@ -102,27 +102,27 @@ function xmlToArray($xml, $options = array()) {
                 is_array($tagsArray[$childTagName]) && array_keys($tagsArray[$childTagName])
                 === range(0, count($tagsArray[$childTagName]) - 1)
             ) {
-                //key already exists and is integer indexed array
+                // Key already exists and is integer indexed array
                 $tagsArray[$childTagName][] = $childProperties;
             } else {
-                //key exists so convert to integer indexed array with previous value in position 0
+                // Key exists so convert to integer indexed array with previous value in position 0
                 $tagsArray[$childTagName] = array($tagsArray[$childTagName], $childProperties);
             }
         }
     }
  
-    //get text content of node
+    // Get text content of node
     $textContentArray = array();
     $plainText = trim((string)$xml);
     if ($plainText !== '') {
         $textContentArray[$options['textContent']] = $plainText;
     }
  
-    //stick it all together
+    // Stick it all together
     $propertiesArray = !$options['autoText'] || $attributesArray || $tagsArray || ($plainText === '')
         ? array_merge($attributesArray, $tagsArray, $textContentArray) : $plainText;
  
-    //return node as array
+    // Return node as array
     return array(
         $xml->getName() => $propertiesArray
     );
