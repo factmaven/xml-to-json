@@ -12,8 +12,14 @@ header("Content-Type: application/json");
 
 // Get XML source through the 'xml' parameter
 if (!empty($_GET['xml']) && isset($_GET['xml'])) {
-    $xml = simplexml_load_file($_GET['xml']);
-    $json = xmlToArray($xml);
+    // If passed in xml is not a filename
+    if (strpos($_GET["xml"], ".xml") === FALSE) {
+        $xml = simplexml_load_string($_GET['xml']);
+        $json = xmlToArray($xml);
+    } else { // when a file
+        $xml = simplexml_load_file($_GET['xml']);
+        $json = xmlToArray($xml);
+    }
 } else {
     $json = [
         "errors" => [
