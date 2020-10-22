@@ -7,17 +7,23 @@
  * @version 1.1.0
  */
 
+// tests:
+// ensure a get passing innn the file https://api.factmaven.com/xml-to-json/qa?xml=https://medium.com/feed/@ethanosullivan works
+// same as above but add the .xml extension
+// ensure a get passinng in small xmls tirng works
+// same as above but large xml string
+
 // Lets the browser and tools such as Postman know it's JSON
 header("Content-Type: application/json");
 
 // Get XML source through the 'xml' parameter
 if (!empty($_GET['xml']) && isset($_GET['xml'])) {
-    // If passed in xml is not a filename
-    if (strpos($_GET["xml"], ".xml") === FALSE) {
-        $xml = simplexml_load_string($_GET['xml']);
-        $json = xmlToArray($xml);
-    } else { // when a file
+    if (strpos($_GET['xml'], "https://") === 0) { // is a file
+        $path = $_GET['xml'];
         $xml = simplexml_load_file($_GET['xml']);
+        $json = xmlToArray($xml);
+    } else { // Assume it's an xml string
+        $xml = simplexml_load_string($_GET['xml']);
         $json = xmlToArray($xml);
     }
 } else {
