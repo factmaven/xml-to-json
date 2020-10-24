@@ -7,41 +7,59 @@
  * @version 1.1.0
  */
 
-// tests:
-// ensure a get passing innn the file https://api.factmaven.com/xml-to-json/qa?xml=https://medium.com/feed/@ethanosullivan works
-// same as above but add the .xml extension
-// ensure a get passinng in small xmls tirng works
-// same as above but large xml string
-
 // Lets the browser and tools such as Postman know it's JSON
 header("Content-Type: application/json");
 
 // Get XML source through the 'xml' parameter
 if (!empty($_GET['xml']) && isset($_GET['xml'])) {
-    if (strpos($_GET['xml'], "https://") === 0) { // is a file
-        $path = $_GET['xml'];
-        $xml = simplexml_load_file($_GET['xml']);
-        $json = xmlToArray($xml);
-    } else { // Assume it's an xml string
-        $xml = simplexml_load_string($_GET['xml']);
-        $json = xmlToArray($xml);
+    $xmlQueryString = $_GET['xml'];
+
+    // If query is a file location over http, ensure it's https
+    $curl = curl_init($xmlQueryString);
+    curl_setopt($curl, CURLOPT_NOBODY, true);
+    curl_exec($curl);
+    $curlStatusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE); // 0 for when a file location on users FS
+    curl_close($curl);
+    if ($curlStatusCode === 200 || $curlStatusCode === 301) {
+        if (strpos($xmlQueryString, "http://") === 0) {
+            $json = constructErrorResponse("400", "http Protocol Not Allowed", "The http protocol is not allowed. Please use https.");
+            echo json_encode($json);
+            return;
+        }
     }
+
+    // For files over https protocol
+    if (strpos($xmlQueryString, "https://") === 0) {
+        $path = $xmlQueryString;
+        $xml = simplexml_load_file($path);
+        $json = xmlToArray($xml);
+        echo json_encode($json);
+        return;
+    }
+
+    // For files on the users FS
+    if (file_exists($xmlQueryString)) {
+        $path = $xmlQueryString;
+        $xml = simplexml_load_file($path);
+        $json = xmlToArray($xml);
+        echo json_encode($json);
+        return;
+    }
+
+    // Assume it's an xml string
+    // TODO :: Still doesn't handle a large batch of XML. See https://medium.com/feed/@ethanosullivan for example xml
+    $xml = simplexml_load_string($xmlQueryString);
+    $json = xmlToArray($xml);
+    echo json_encode($json);
+    return;
+
 } else {
-    $json = [
-        "errors" => [
-            "id" => "404",
-            "title" => "Missing Parameter",
-            "detail" => "Please set the path to your XML by using the '?xml=' query string.",
-        ],
-        "meta" => [
-        "version" => "1.1.0",
-        "copyright" => "Copyright 2011-" . date("Y") . " Fact Maven",
-        "link" => "https://factmaven.com/",
-        "authors" => [
-                "Ethan O'Sullivan",
-            ],
-        ],
-    ];
+    $statusCode = "404";
+    $title = "Missing Parameter";
+    $detail = "Please set the path to your XML by using the '?xml=' query string.";
+    $json = constructErrorResponse($statusCode, $title, $detail);
+    echo json_encode($json);
+    return;
 }
 
 function xmlToArray($xml, $options = array()) {
@@ -140,8 +158,32 @@ function xmlToArray($xml, $options = array()) {
     );
 }
 
-// Output JSON
-echo json_encode($json);
+/**
+ * @param string $statusCode Status code to represent the response eg "404"
+ * @param string $title Title of the error, eg "Missing Parameter" when `$_GET['xml']` doesn't exist
+ * @param string $detail Description for the title
+ *
+ * @return array The response
+ */
+function constructErrorResponse ($statusCode, $title, $detail)
+{
+    $json = [
+        "errors" => [
+            "id" => $statusCode,
+            "title" => $title,
+            "detail" => $detail,
+        ],
+        "meta" => [
+            "version" => "1.1.0",
+            "copyright" => "Copyright 2011-" . date("Y") . " Fact Maven",
+            "link" => "https://factmaven.com/",
+            "authors" => [
+                "Ethan O'Sullivan",
+            ],
+        ],
+    ];
+    return $json;
+}
 
 // DEBUG: Array output
 // print_r($json);
