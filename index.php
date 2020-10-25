@@ -14,31 +14,12 @@ header("Content-Type: application/json");
 if (!empty($_GET['xml']) && isset($_GET['xml'])) {
     $xmlQueryString = $_GET['xml'];
 
-    // If query is a file location over http, ensure it's https
-    $curl = curl_init($xmlQueryString);
-    curl_setopt($curl, CURLOPT_NOBODY, true);
-    curl_exec($curl);
-    $curlStatusCode = curl_getinfo($curl, CURLINFO_HTTP_CODE); // 0 for when a file location on users FS
-    curl_close($curl);
-    if ($curlStatusCode === 200 || $curlStatusCode === 301) {
-        if (strpos($xmlQueryString, "http://") === 0) {
-            $json = constructErrorResponse("400", "http Protocol Not Allowed", "The http protocol is not allowed. Please use https.");
-            echo json_encode($json);
-            return;
-        }
-    }
-
-    // For files over https protocol
-    if (strpos($xmlQueryString, "https://") === 0) {
-        $path = $xmlQueryString;
-        $xml = simplexml_load_file($path);
-        $json = xmlToArray($xml);
-        echo json_encode($json);
-        return;
-    }
-
-    // For files on the users FS
-    if (file_exists($xmlQueryString)) {
+    // For files over http protocol
+    if (
+        strpos($xmlQueryString, "http://") === 0
+        ||
+        strpos($xmlQueryString, "https://") === 0
+    ) {
         $path = $xmlQueryString;
         $xml = simplexml_load_file($path);
         $json = xmlToArray($xml);
@@ -47,7 +28,7 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
     }
 
     // Assume it's an xml string
-    // TODO :: Still doesn't handle a large batch of XML. See https://medium.com/feed/@ethanosullivan for example xml
+    // FIXME :: Doesn't handle large batches of XML when PASTED into the URL. Is this a real problem?
     $xml = simplexml_load_string($xmlQueryString);
     $json = xmlToArray($xml);
     echo json_encode($json);
