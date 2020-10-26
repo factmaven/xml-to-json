@@ -38,14 +38,28 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
             return;
         }
     } else {
-        // Assume it's an XML string
-        $xml = simplexml_load_string($xmlQueryString);
-        $json = xmlToArray($xml);
-        echo json_encode($json);
-        return;
+        // Assume it's an XML string and check if string is valid XML
+        libxml_use_internal_errors(true);
+        if (simplexml_load_string($xmlQueryString)) {
+            $xml = simplexml_load_string($xmlQueryString);
+            $json = xmlToArray($xml);
+            echo json_encode($json);
+            return;
+        } else {
+            // Show all XML validation errors
+            $statusCode = 400;
+            $title = "Failed Loading XML";
+            $detail = array();
+            foreach(libxml_get_errors() as $error) {
+                $detail[] = str_replace("\n", "", $error->message);
+            }
+            $json = constructErrorResponse($statusCode, $title, $detail);
+            echo json_encode($json);
+            return;
+        }
     }
-
 } else {
+    // Display error that parameter is missing
     $statusCode = 404;
     $title = "Missing Parameter";
     $detail = "Please set the path to your XML by using the '?xml=' query string.";
@@ -160,7 +174,7 @@ function constructErrorResponse($statusCode, $title, $detail) {
     $timestamp = (new DateTime("America/New_York"))->format("Y-m-d h:i:s ") . "EST";
 
     $json = [
-        "errors" => [
+        "error" => [
             "timestamp" => $timestamp,
             "status" => $statusCode,
             "title" => $title,
