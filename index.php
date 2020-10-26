@@ -15,12 +15,23 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
     $xmlQueryString = $_GET['xml'];
 
     // For files over HTTP protocol
-    if (strpos($xmlQueryString, "http://") === 0 || strpos($xmlQueryString, "https://") === 0) {
-        $path = $xmlQueryString;
-        $xml = simplexml_load_file($path);
-        $json = xmlToArray($xml);
-        echo json_encode($json);
-        return;
+    if (filter_var($xmlQueryString, FILTER_VALIDATE_URL)) {
+        // Check if XML file exists
+        if (file_exists($xmlQueryString)) {
+            $path = $xmlQueryString;
+            $xml = simplexml_load_file($path);
+            $json = xmlToArray($xml);
+            echo json_encode($json);
+            return;
+        } else {
+            // Display error that XML isn't found with provided URL
+            $statusCode = 404;
+            $title = "File Not Found";
+            $detail = "The URL you provided does not point to an XML feed. Please check that you entered the correct URL and try again.";
+            $json = constructErrorResponse($statusCode, $title, $detail);
+            echo json_encode($json);
+            return; 
+        }
     } else {
         // Assume it's an XML string
         $xml = simplexml_load_string($xmlQueryString);
@@ -30,7 +41,7 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
     }
 
 } else {
-    $statusCode = "404";
+    $statusCode = 404;
     $title = "Missing Parameter";
     $detail = "Please set the path to your XML by using the '?xml=' query string.";
     $json = constructErrorResponse($statusCode, $title, $detail);
@@ -133,7 +144,7 @@ function xmlToArray($xml, $options = array()) {
 }
 
 /**
- * @param string $statusCode Status code to represent the response (eg "404")
+ * @param string $statusCode Status code to represent the response (eg 404)
  * @param string $title Title of the error, (eg "Missing Parameter") when `$_GET['xml']` doesn't exist
  * @param string $detail Description for the title
  *
@@ -142,7 +153,7 @@ function xmlToArray($xml, $options = array()) {
 function constructErrorResponse($statusCode, $title, $detail) {
     $json = [
         "errors" => [
-            "id" => $statusCode,
+            "status" => $statusCode,
             "title" => $title,
             "detail" => $detail,
         ],
