@@ -1,15 +1,20 @@
 ## Changelog
 
+### 2.0.0
+*2020-10-26*
+* **Feature**: You can now paste raw XML data directly to the API instead of referencing a URL [#1](https://github.com/factmaven/xml-to-json/issues/1)
+* Apply additional error handling
+
 ### 1.1.0
 *2020-08-23*
-* Updated `xmlToArray` to latest version from [Tamlyn's repo](https://github.com/tamlyn/xml2json)
+* Update `xmlToArray` to latest version from [Tamlyn's repo](https://github.com/tamlyn/xml2json)
 * Change `url` parameter name to `xml`
-* Updated README info
+* Update README
 
 ### 1.0.1
 *2020-08-20*
 * Empty `url` parameters redirect to 404
-* Replaced depreciated `each()` function
+* Replace depreciated `each()` function
 
 ### 1.0.0
 *2017-08-20*
