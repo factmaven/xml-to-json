@@ -14,25 +14,20 @@ header("Content-Type: application/json");
 if (!empty($_GET['xml']) && isset($_GET['xml'])) {
     $xmlQueryString = $_GET['xml'];
 
-    // For files over http protocol
-    if (
-        strpos($xmlQueryString, "http://") === 0
-        ||
-        strpos($xmlQueryString, "https://") === 0
-    ) {
+    // For files over HTTP protocol
+    if (strpos($xmlQueryString, "http://") === 0 || strpos($xmlQueryString, "https://") === 0) {
         $path = $xmlQueryString;
         $xml = simplexml_load_file($path);
         $json = xmlToArray($xml);
         echo json_encode($json);
         return;
+    } else {
+        // Assume it's an XML string
+        $xml = simplexml_load_string($xmlQueryString);
+        $json = xmlToArray($xml);
+        echo json_encode($json);
+        return;
     }
-
-    // Assume it's an xml string
-    // FIXME :: Doesn't handle large batches of XML when PASTED into the URL. Is this a real problem?
-    $xml = simplexml_load_string($xmlQueryString);
-    $json = xmlToArray($xml);
-    echo json_encode($json);
-    return;
 
 } else {
     $statusCode = "404";
@@ -72,9 +67,7 @@ function xmlToArray($xml, $options = array()) {
                 $attributeName =
                     str_replace($options['keySearch'], $options['keyReplace'], $attributeName);
             }
-            $attributeKey = $options['attributePrefix']
-                . ($prefix ? $prefix . $options['namespaceSeparator'] : '')
-                . $attributeName;
+            $attributeKey = $options['attributePrefix'] . ($prefix ? $prefix . $options['namespaceSeparator'] : '') . $attributeName;
             $attributesArray[$attributeKey] = (string)$attribute;
         }
     }
@@ -140,14 +133,13 @@ function xmlToArray($xml, $options = array()) {
 }
 
 /**
- * @param string $statusCode Status code to represent the response eg "404"
- * @param string $title Title of the error, eg "Missing Parameter" when `$_GET['xml']` doesn't exist
+ * @param string $statusCode Status code to represent the response (eg "404")
+ * @param string $title Title of the error, (eg "Missing Parameter") when `$_GET['xml']` doesn't exist
  * @param string $detail Description for the title
  *
  * @return array The response
  */
-function constructErrorResponse ($statusCode, $title, $detail)
-{
+function constructErrorResponse($statusCode, $title, $detail) {
     $json = [
         "errors" => [
             "id" => $statusCode,
@@ -160,6 +152,7 @@ function constructErrorResponse ($statusCode, $title, $detail)
             "link" => "https://factmaven.com/",
             "authors" => [
                 "Ethan O'Sullivan",
+                "Edward Bebbington",
             ],
         ],
     ];
