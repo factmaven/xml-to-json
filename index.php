@@ -12,24 +12,35 @@ header("Content-Type: application/json");
 
 // Get XML source through the 'xml' parameter
 if (!empty($_GET['xml']) && isset($_GET['xml'])) {
-    $xml = simplexml_load_file($_GET['xml']);
+    $xmlQueryString = $_GET['xml'];
+
+    // For files over http protocol
+    if (
+        strpos($xmlQueryString, "http://") === 0
+        ||
+        strpos($xmlQueryString, "https://") === 0
+    ) {
+        $path = $xmlQueryString;
+        $xml = simplexml_load_file($path);
+        $json = xmlToArray($xml);
+        echo json_encode($json);
+        return;
+    }
+
+    // Assume it's an xml string
+    // FIXME :: Doesn't handle large batches of XML when PASTED into the URL. Is this a real problem?
+    $xml = simplexml_load_string($xmlQueryString);
     $json = xmlToArray($xml);
+    echo json_encode($json);
+    return;
+
 } else {
-    $json = [
-        "errors" => [
-            "id" => "404",
-            "title" => "Missing Parameter",
-            "detail" => "Please set the path to your XML by using the '?xml=' query string.",
-        ],
-        "meta" => [
-        "version" => "1.1.0",
-        "copyright" => "Copyright 2011-" . date("Y") . " Fact Maven",
-        "link" => "https://factmaven.com/",
-        "authors" => [
-                "Ethan O'Sullivan",
-            ],
-        ],
-    ];
+    $statusCode = "404";
+    $title = "Missing Parameter";
+    $detail = "Please set the path to your XML by using the '?xml=' query string.";
+    $json = constructErrorResponse($statusCode, $title, $detail);
+    echo json_encode($json);
+    return;
 }
 
 function xmlToArray($xml, $options = array()) {
@@ -128,8 +139,32 @@ function xmlToArray($xml, $options = array()) {
     );
 }
 
-// Output JSON
-echo json_encode($json);
+/**
+ * @param string $statusCode Status code to represent the response eg "404"
+ * @param string $title Title of the error, eg "Missing Parameter" when `$_GET['xml']` doesn't exist
+ * @param string $detail Description for the title
+ *
+ * @return array The response
+ */
+function constructErrorResponse ($statusCode, $title, $detail)
+{
+    $json = [
+        "errors" => [
+            "id" => $statusCode,
+            "title" => $title,
+            "detail" => $detail,
+        ],
+        "meta" => [
+            "version" => "1.1.0",
+            "copyright" => "Copyright 2011-" . date("Y") . " Fact Maven",
+            "link" => "https://factmaven.com/",
+            "authors" => [
+                "Ethan O'Sullivan",
+            ],
+        ],
+    ];
+    return $json;
+}
 
 // DEBUG: Array output
 // print_r($json);
