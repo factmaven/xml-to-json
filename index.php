@@ -69,6 +69,12 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
     return;
 }
 
+/**
+ * @param string $xml XML code to convert to JSON
+ * @param array $options Options of the API to change JSON output
+ *
+ * @return array The JSON response
+ */
 function xmlToArray($xml, $options = [])
 {
     $defaults = [
@@ -161,7 +167,7 @@ function xmlToArray($xml, $options = [])
  * @param string $title Title of the error, (eg "Missing Parameter") when `$_GET['xml']` doesn't exist
  * @param string $detail Description for the title
  *
- * @return array The response
+ * @return array The error response
  */
 function constructErrorResponse($statusCode, $title, $detail)
 {
