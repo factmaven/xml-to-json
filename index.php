@@ -16,8 +16,12 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
 
     // For files over HTTP protocol
     if (filter_var($xmlQueryString, FILTER_VALIDATE_URL)) {
-        // Check if XML file exists
-        if (file_exists($xmlQueryString)) {
+        // Check if XML file exists (Status Code = 200)
+        $handle = curl_init($xmlQueryString);
+        curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($handle);
+        $statusCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+        if($statusCode == 200) {
             $path = $xmlQueryString;
             $xml = simplexml_load_file($path);
             $json = xmlToArray($xml);
@@ -25,12 +29,13 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
             return;
         } else {
             // Display error that XML isn't found with provided URL
-            $statusCode = 404;
-            $title = "File Not Found";
-            $detail = "The URL you provided does not point to an XML feed. Please check that you entered the correct URL and try again.";
+            $statusCode = $statusCode;
+            $title = get_headers($xmlQueryString, 1);
+            $title = substr($title[0], 13);
+            $detail = "The URL you provided does not point to an valid XML feed. Please check that you entered the correct URL.";
             $json = constructErrorResponse($statusCode, $title, $detail);
             echo json_encode($json);
-            return; 
+            return;
         }
     } else {
         // Assume it's an XML string
@@ -156,11 +161,11 @@ function constructErrorResponse($statusCode, $title, $detail) {
 
     $json = [
         "errors" => [
-            //2020-10-26T15:11:40.793+0000
             "timestamp" => $timestamp,
             "status" => $statusCode,
             "title" => $title,
             "detail" => $detail,
+            "url" => $_SERVER['REQUEST_URI'],
         ],
         "meta" => [
             "version" => "2.0.0",
