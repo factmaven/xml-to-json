@@ -21,7 +21,8 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($handle);
         $statusCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-        if($statusCode == 200) {
+
+        if ($statusCode == 200) {
             $path = $xmlQueryString;
             $xml = simplexml_load_file($path);
             $json = xmlToArray($xml);
@@ -49,8 +50,8 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
             // Show all XML validation errors
             $statusCode = 400;
             $title = "Failed Loading XML";
-            $detail = array();
-            foreach(libxml_get_errors() as $error) {
+            $detail = [];
+            foreach (libxml_get_errors() as $error) {
                 $detail[] = str_replace("\n", "", $error->message);
             }
             $json = constructErrorResponse($statusCode, $title, $detail);
@@ -68,25 +69,26 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
     return;
 }
 
-function xmlToArray($xml, $options = array()) {
-    $defaults = array(
-        'namespaceRecursive' => false,  // Get XML doc namespaces recursively
-        'removeNamespace' => false,     // Remove namespace from resulting keys (recommend setting namespaceSeparator = '' when true)
-        'namespaceSeparator' => ':',    // Change separator to something other than a colon
-        'attributePrefix' => '@',       // Distinguish between attributes and nodes with the same name
-        'alwaysArray' => array(),       // Array of XML tag names which should always become arrays
-        'autoArray' => true,            // Create arrays for tags which appear more than once
-        'textContent' => '#text',       // Key used for the text content of elements
-        'autoText' => true,             // Skip textContent key if node has no attributes or child nodes
-        'keySearch' => false,           // (Optional) search and replace on tag and attribute names
-        'keyReplace' => false           // (Optional) replace values for above search values
-    );
+function xmlToArray($xml, $options = [])
+{
+    $defaults = [
+        'namespaceRecursive' => false, // Get XML doc namespaces recursively
+        'removeNamespace' => false, // Remove namespace from resulting keys (recommend setting namespaceSeparator = '' when true)
+        'namespaceSeparator' => ':', // Change separator to something other than a colon
+        'attributePrefix' => '@', // Distinguish between attributes and nodes with the same name
+        'alwaysArray' => [], // Array of XML tag names which should always become arrays
+        'autoArray' => true, // Create arrays for tags which appear more than once
+        'textContent' => '#text', // Key used for the text content of elements
+        'autoText' => true, // Skip textContent key if node has no attributes or child nodes
+        'keySearch' => false, // (Optional) search and replace on tag and attribute names
+        'keyReplace' => false, // (Optional) replace values for above search values
+    ];
     $options = array_merge($defaults, $options);
     $namespaces = $xml->getDocNamespaces($options['namespaceRecursive']);
     $namespaces[''] = null; // Add empty base namespace
- 
+
     // Get attributes from all namespaces
-    $attributesArray = array();
+    $attributesArray = [];
     foreach ($namespaces as $prefix => $namespace) {
         if ($options['removeNamespace']) {
             $prefix = '';
@@ -94,16 +96,15 @@ function xmlToArray($xml, $options = array()) {
         foreach ($xml->attributes($namespace) as $attributeName => $attribute) {
             // (Optional) replace characters in attribute name
             if ($options['keySearch']) {
-                $attributeName =
-                    str_replace($options['keySearch'], $options['keyReplace'], $attributeName);
+                $attributeName = str_replace($options['keySearch'], $options['keyReplace'], $attributeName);
             }
             $attributeKey = $options['attributePrefix'] . ($prefix ? $prefix . $options['namespaceSeparator'] : '') . $attributeName;
-            $attributesArray[$attributeKey] = (string)$attribute;
+            $attributesArray[$attributeKey] = (string) $attribute;
         }
     }
- 
+
     // Get child nodes from all namespaces
-    $tagsArray = array();
+    $tagsArray = [];
     foreach ($namespaces as $prefix => $namespace) {
         if ($options['removeNamespace']) {
             $prefix = '';
@@ -114,52 +115,45 @@ function xmlToArray($xml, $options = array()) {
             $childArray = xmlToArray($childXml, $options);
             $childTagName = key($childArray);
             $childProperties = current($childArray);
- 
+
             // Replace characters in tag name
             if ($options['keySearch']) {
-                $childTagName =
-                    str_replace($options['keySearch'], $options['keyReplace'], $childTagName);
+                $childTagName = str_replace($options['keySearch'], $options['keyReplace'], $childTagName);
             }
 
             // Add namespace prefix, if any
             if ($prefix) {
                 $childTagName = $prefix . $options['namespaceSeparator'] . $childTagName;
             }
- 
+
             if (!isset($tagsArray[$childTagName])) {
                 // Only entry with this key
                 // Test if tags of this type should always be arrays, no matter the element count
-                $tagsArray[$childTagName] =
-                        in_array($childTagName, $options['alwaysArray'], true) || !$options['autoArray']
-                        ? array($childProperties) : $childProperties;
-            } elseif (
-                is_array($tagsArray[$childTagName]) && array_keys($tagsArray[$childTagName])
-                === range(0, count($tagsArray[$childTagName]) - 1)
-            ) {
+                $tagsArray[$childTagName] = in_array($childTagName, $options['alwaysArray'], true) || !$options['autoArray'] ? [$childProperties] : $childProperties;
+            } elseif (is_array($tagsArray[$childTagName]) && array_keys($tagsArray[$childTagName]) === range(0, count($tagsArray[$childTagName]) - 1)) {
                 // Key already exists and is integer indexed array
                 $tagsArray[$childTagName][] = $childProperties;
             } else {
                 // Key exists so convert to integer indexed array with previous value in position 0
-                $tagsArray[$childTagName] = array($tagsArray[$childTagName], $childProperties);
+                $tagsArray[$childTagName] = [$tagsArray[$childTagName], $childProperties];
             }
         }
     }
- 
+
     // Get text content of node
-    $textContentArray = array();
-    $plainText = trim((string)$xml);
+    $textContentArray = [];
+    $plainText = trim((string) $xml);
     if ($plainText !== '') {
         $textContentArray[$options['textContent']] = $plainText;
     }
- 
+
     // Stick it all together
-    $propertiesArray = !$options['autoText'] || $attributesArray || $tagsArray || ($plainText === '')
-        ? array_merge($attributesArray, $tagsArray, $textContentArray) : $plainText;
- 
+    $propertiesArray = !$options['autoText'] || $attributesArray || $tagsArray || $plainText === '' ? array_merge($attributesArray, $tagsArray, $textContentArray) : $plainText;
+
     // Return node as array
-    return array(
-        $xml->getName() => $propertiesArray
-    );
+    return [
+        $xml->getName() => $propertiesArray,
+    ];
 }
 
 /**
@@ -169,7 +163,8 @@ function xmlToArray($xml, $options = array()) {
  *
  * @return array The response
  */
-function constructErrorResponse($statusCode, $title, $detail) {
+function constructErrorResponse($statusCode, $title, $detail)
+{
     // Set timestamp to New York
     $timestamp = (new DateTime("America/New_York"))->format("Y-m-d h:i:s ") . "EST";
 
@@ -185,10 +180,7 @@ function constructErrorResponse($statusCode, $title, $detail) {
             "version" => "2.0.0",
             "copyright" => "Copyright 2011-" . date("Y") . " Fact Maven",
             "link" => "https://factmaven.com/",
-            "authors" => [
-                "Ethan O'Sullivan",
-                "Edward Bebbington",
-            ],
+            "authors" => ["Ethan O'Sullivan", "Edward Bebbington"],
         ],
     ];
     return $json;
