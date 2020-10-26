@@ -151,8 +151,13 @@ function xmlToArray($xml, $options = array()) {
  * @return array The response
  */
 function constructErrorResponse($statusCode, $title, $detail) {
+    // Set timestamp to New York
+    $timestamp = (new DateTime("America/New_York"))->format("Y-m-d h:i:s ") . "EST";
+
     $json = [
         "errors" => [
+            //2020-10-26T15:11:40.793+0000
+            "timestamp" => $timestamp,
             "status" => $statusCode,
             "title" => $title,
             "detail" => $detail,
