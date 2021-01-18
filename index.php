@@ -4,7 +4,7 @@
  *
  * @link https://api.factmaven.com/xml-to-json
  * @author Ethan O'Sullivan <https://ethanosullivan.com>
- * @version 2.0.0
+ * @version 2.0.1
  */
 
 // Lets the browser and API tools know it's JSON
@@ -183,7 +183,7 @@ function constructErrorResponse($statusCode, $title, $detail)
             "url" => $_SERVER['REQUEST_URI'],
         ],
         "meta" => [
-            "version" => "2.0.0",
+            "version" => "2.0.1",
             "copyright" => "Copyright 2011-" . date("Y") . " Fact Maven",
             "link" => "https://factmaven.com/",
             "authors" => ["Ethan O'Sullivan", "Edward Bebbington"],
