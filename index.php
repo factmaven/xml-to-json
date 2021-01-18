@@ -8,7 +8,7 @@
  */
 
 // Lets the browser and API tools know it's JSON
-header("Content-Type: application/json");
+header('Content-Type: application/json');
 
 // Get XML source through the 'xml' parameter
 if (!empty($_GET['xml']) && isset($_GET['xml'])) {
