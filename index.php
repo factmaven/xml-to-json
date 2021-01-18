@@ -79,12 +79,12 @@ function xmlToArray($xml, $options = [])
 {
     $defaults = [
         'namespaceRecursive' => false, // Get XML doc namespaces recursively
-        'removeNamespace' => false, // Remove namespace from resulting keys (recommend setting namespaceSeparator = '' when true)
+        'removeNamespace' => true, // Remove namespace from resulting keys
         'namespaceSeparator' => ':', // Change separator to something other than a colon
-        'attributePrefix' => '@', // Distinguish between attributes and nodes with the same name
+        'attributePrefix' => '', // Distinguish between attributes and nodes with the same name
         'alwaysArray' => [], // Array of XML tag names which should always become arrays
         'autoArray' => true, // Create arrays for tags which appear more than once
-        'textContent' => '#text', // Key used for the text content of elements
+        'textContent' => 'text', // Key used for the text content of elements
         'autoText' => true, // Skip textContent key if node has no attributes or child nodes
         'keySearch' => false, // (Optional) search and replace on tag and attribute names
         'keyReplace' => false, // (Optional) replace values for above search values
