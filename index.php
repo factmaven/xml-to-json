@@ -4,7 +4,7 @@
  *
  * @link https://api.factmaven.com/xml-to-json
  * @author Ethan O'Sullivan <https://ethanosullivan.com>
- * @version 2.0.1
+ * @version 2.0.2
  */
 
 header('Content-Type: application/json');
@@ -184,7 +184,7 @@ function constructErrorResponse($statusCode, $title, $detail)
             "url" => $_SERVER['REQUEST_URI'],
         ],
         "meta" => [
-            "version" => "2.0.1",
+            "version" => "2.0.2",
             "copyright" => "Copyright 2011-" . date("Y") . " Fact Maven",
             "link" => "https://factmaven.com/",
             "authors" => ["Ethan O'Sullivan", "Edward Bebbington"],
