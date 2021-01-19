@@ -7,8 +7,8 @@
  * @version 2.0.1
  */
 
-// Lets the browser and API tools know it's JSON
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
 
 // Get XML source through the 'xml' parameter
 if (!empty($_GET['xml']) && isset($_GET['xml'])) {
