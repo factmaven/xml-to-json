@@ -9,6 +9,7 @@
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET');
 
 // Get XML source through the 'xml' parameter
 if (!empty($_GET['xml']) && isset($_GET['xml'])) {
