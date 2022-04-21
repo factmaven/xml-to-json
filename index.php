@@ -27,6 +27,12 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
             $path = $xmlQueryString;
             $xml = simplexml_load_file($path);
             $json = xmlToArray($xml);
+            foreach ($json['rss']['channel']['item'] as $key => $value) {
+              $imageSrc = explode('"', explode('src', $value['encoded'])[1]);
+              if ($imageSrc[1] !== '') {
+                $json['rss']['channel']['item'][$key]['postImage'] = $imageSrc[1];
+              }
+            }
             echo json_encode($json);
             return;
         } else {
