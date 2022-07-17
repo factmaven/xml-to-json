@@ -185,8 +185,7 @@ function constructErrorResponse($statusCode, $title, $detail)
         ],
         "meta" => [
             "version" => "2.0.2",
-            "copyright" => "Copyright 2011-" . date("Y") . " Fact Maven",
-            "link" => "https://factmaven.com/",
+            "copyright" => "Copyright 2011-" . date("Y") . " MHRLAB",
             "authors" => ["Ethan O'Sullivan", "Edward Bebbington"],
         ],
     ];
