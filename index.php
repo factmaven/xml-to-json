@@ -27,7 +27,7 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
             $path = $xmlQueryString;
             $xml = simplexml_load_file($path);
             $json = xmlToArray($xml);
-            echo json_encode($json);
+            echo json_encode($json, JSON_PRETTY_PRINT);
             return;
         } else {
             // Display error that XML isn't found with provided URL
@@ -36,7 +36,7 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
             $title = substr($title[0], 13);
             $detail = "The URL you provided does not point to an valid XML feed. Please check that you entered the correct URL.";
             $json = constructErrorResponse($statusCode, $title, $detail);
-            echo json_encode($json);
+            echo json_encode($json, JSON_PRETTY_PRINT);
             return;
         }
     } else {
@@ -45,7 +45,7 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
         if (simplexml_load_string($xmlQueryString)) {
             $xml = simplexml_load_string($xmlQueryString);
             $json = xmlToArray($xml);
-            echo json_encode($json);
+            echo json_encode($json, JSON_PRETTY_PRINT);
             return;
         } else {
             // Show all XML validation errors
@@ -56,7 +56,7 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
                 $detail[] = str_replace("\n", "", $error->message);
             }
             $json = constructErrorResponse($statusCode, $title, $detail);
-            echo json_encode($json);
+            echo json_encode($json, JSON_PRETTY_PRINT);
             return;
         }
     }
@@ -66,7 +66,7 @@ if (!empty($_GET['xml']) && isset($_GET['xml'])) {
     $title = "Missing Parameter";
     $detail = "Please set the path to your XML by using the '?xml=' query string.";
     $json = constructErrorResponse($statusCode, $title, $detail);
-    echo json_encode($json);
+    echo json_encode($json, JSON_PRETTY_PRINT);
     return;
 }
 
